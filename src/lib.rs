@@ -1,14 +1,18 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+use bincode::config::standard;
+use bincode::de::Decode;
+use bincode::decode_from_slice;
+use std::error::Error;
+use std::path::Path;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+/// Reads and decodes a bincode-serialized file into type `T`.
+pub fn read<T>(path: &Path) -> Result<T, Box<dyn Error>>
+where
+    T: Decode<()>, // T must implement bincode::Decode with default config
+{
+    // Read file into memory
+    let data = std::fs::read(path)?;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+    // Decode using bincode; propagate errors
+    let (value, _bytes_read) = decode_from_slice::<T, _>(&data, standard())?;
+    Ok(value)
 }
