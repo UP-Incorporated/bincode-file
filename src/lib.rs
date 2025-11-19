@@ -16,3 +16,9 @@ where
     let (value, _bytes_read) = decode_from_slice::<T, _>(&data, standard())?;
     Ok(value)
 }
+pub fn write<T: bincode::Encode>(path: &Path, value: &T) -> Result<(), Box<dyn Error>>
+{
+    let encoded_data = bincode::encode_to_vec(value, standard())?;
+    std::fs::write(path, encoded_data)?;
+    Ok(())
+}
